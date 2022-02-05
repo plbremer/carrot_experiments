@@ -64,13 +64,17 @@ def impute_annotations_zero_found(temp_average_fame_intensity,temp_so_count):
     imputed_value=noise_intensity/temp_average_fame_intensity
     return [imputed_value for i in range(temp_so_count)]
 
-def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda):
+def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda,so_to_skip_set):
     #
 
     for temp_bin_and_name in bin_and_name_list:
         print(temp_bin_and_name)
 
         for temp_species_organ_pair in species_organ_pair_list:
+
+            if temp_species_organ_pair in so_to_skip_set:
+                print(temp_species_organ_pair)
+                hold=input('hold')
 
             this_species_organ_count=species_organ_properties_panda.loc[
                 (species_organ_properties_panda.species==temp_species_organ_pair[0]) &
@@ -115,6 +119,9 @@ def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_or
 
 if __name__=="__main__":
     
+    ##when looking at the fames it was discovered that a number of metadata had "bad fame appearance frequency"
+    #that is, for whatever reason, the fames only appeared like 50 percent of the time
+    so_to_skip_csv_address='input_resources/so_to_skip.csv'
     noise_intensity=200
     data_base_address='./soc_data/'
     pipeline_input_panda_columns=['id','name','species','organ','count','median_intensity','group','inchikey','annotation_distribution']
@@ -122,6 +129,11 @@ if __name__=="__main__":
     species_organ_properties_panda_address='./so_count_data/species_organ_sample_count_and_average_fame.bin'
     output_address='./pipeline_input/pipeline_input.bin'
     
+
+    so_to_skip_panda=pd.read_csv(so_to_skip_csv_address,sep='¬')
+    so_to_skip_set=set(zip(so_to_skip_panda['species'],so_to_skip_panda['organ']))
+
+
     compound_properties_panda=pd.read_pickle(compound_properties_panda_address)
     species_organ_properties_panda=pd.read_pickle(species_organ_properties_panda_address)
     
@@ -140,7 +152,7 @@ if __name__=="__main__":
     # print(pipeline_input_panda)
     # hold=input('hold')
     
-    pipeline_input_panda=insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda)
+    pipeline_input_panda=insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda,so_to_skip)
     pipeline_input_panda.reset_index(inplace=True,drop=True)
 
     print(pipeline_input_panda)
