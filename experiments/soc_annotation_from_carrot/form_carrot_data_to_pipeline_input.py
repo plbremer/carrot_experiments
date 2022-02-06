@@ -46,6 +46,7 @@ def make_empty_input_panda(pipeline_input_panda_columns,bin_and_name_list):
     temp_dict_of_list['median_intensity']=[list() for temp in bin_and_name_list]
     temp_dict_of_list['annotation_distribution']=[list() for temp in bin_and_name_list]
     temp_dict_of_list['count']=[list() for temp in bin_and_name_list]
+    temp_dict_of_list['total_intensity']=[list() for temp in bin_and_name_list]
 
     pipeline_input_panda=pd.DataFrame.from_dict(temp_dict_of_list)
 
@@ -72,9 +73,9 @@ def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_or
 
         for temp_species_organ_pair in species_organ_pair_list:
 
-            if temp_species_organ_pair in so_to_skip_set:
-                print(temp_species_organ_pair)
-                hold=input('hold')
+            #if temp_species_organ_pair in so_to_skip_set:
+            #    #print(temp_species_organ_pair)
+            #    #hold=input('hold')
 
             this_species_organ_count=species_organ_properties_panda.loc[
                 (species_organ_properties_panda.species==temp_species_organ_pair[0]) &
@@ -113,6 +114,8 @@ def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_or
             pipeline_input_panda.at[temp_bin_and_name[0],'count'].append(this_species_organ_count)
             pipeline_input_panda.at[temp_bin_and_name[0],'median_intensity'].append(np.median(temp_imputed_annotations_list))
             pipeline_input_panda.at[temp_bin_and_name[0],'annotation_distribution'].append(temp_imputed_annotations_list)
+            pipeline_input_panda.at[temp_bin_and_name[0],'total_intensity'].append(sum(temp_imputed_annotations_list))
+
 
     return pipeline_input_panda            
 
@@ -121,10 +124,10 @@ if __name__=="__main__":
     
     ##when looking at the fames it was discovered that a number of metadata had "bad fame appearance frequency"
     #that is, for whatever reason, the fames only appeared like 50 percent of the time
-    so_to_skip_csv_address='input_resources/so_to_skip.csv'
+    so_to_skip_csv_address='./input_resources/so_to_skip.csv'
     noise_intensity=200
     data_base_address='./soc_data/'
-    pipeline_input_panda_columns=['id','name','species','organ','count','median_intensity','group','inchikey','annotation_distribution']
+    pipeline_input_panda_columns=['id','name','species','organ','count','total_intensity','median_intensity','group','inchikey','annotation_distribution']
     compound_properties_panda_address='./so_count_data/all_species_organs_compounds_panda.bin'
     species_organ_properties_panda_address='./so_count_data/species_organ_sample_count_and_average_fame.bin'
     output_address='./pipeline_input/pipeline_input.bin'
@@ -152,7 +155,7 @@ if __name__=="__main__":
     # print(pipeline_input_panda)
     # hold=input('hold')
     
-    pipeline_input_panda=insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda,so_to_skip)
+    pipeline_input_panda=insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_organ_pair_list,data_base_address,species_organ_properties_panda,so_to_skip_set)
     pipeline_input_panda.reset_index(inplace=True,drop=True)
 
     print(pipeline_input_panda)

@@ -21,8 +21,10 @@ def input_addtional_properties(pipeline_input_panda, additional_property_panda):
     pipeline_input_panda['inchikey']=pipeline_input_panda['inchikey'].astype(str)
 
     for index, series in additional_property_panda.iterrows():
-        pipeline_input_panda.at[index,'group']=series['group']
-        pipeline_input_panda.at[index,'inchikey']=series['inchikey']
+        #in case our input file has extra bins that our carrot data does not
+        if index in pipeline_input_panda.index:
+            pipeline_input_panda.at[index,'group']=series['group']
+            pipeline_input_panda.at[index,'inchikey']=series['inchikey']
 
     pipeline_input_panda.reset_index(inplace=True,drop=True)
     additional_property_panda.reset_index(inplace=True,drop=True)
@@ -45,4 +47,4 @@ if __name__ == "__main__":
 
     print(pipeline_input_panda)
 
-    pipeline_input_panda.to_pickle(pipeline_input_panda_output_address)
+    pipeline_input_panda.to_pickle(pipeline_input_panda_output_address,protocol=0)
