@@ -88,6 +88,15 @@ def insert_combination_wrapper(pipeline_input_panda,bin_and_name_list,species_or
                 
                 temp_imputed_annotations_list=impute_annotations_at_least_one_found(temp_panda['normalized_intensity'].to_list(),this_species_organ_count)
 
+                #there is a special case where the annotation is made but the value is still zero
+                #why this occurs is a binbase issue
+                #if this is the case, then we resort to the noise imputation strategy
+                if sum(temp_imputed_annotations_list)==0:
+                    this_species_organ_average_fame_intensity=species_organ_properties_panda.loc[
+                        (species_organ_properties_panda.species==temp_species_organ_pair[0]) &
+                        (species_organ_properties_panda.organ==temp_species_organ_pair[1])
+                    ]['average_fame_intensity'].item()
+                    temp_imputed_annotations_list=impute_annotations_zero_found(this_species_organ_average_fame_intensity,this_species_organ_count)
 
                 # print(temp_panda['normalized_intensity'].to_list())
                 # print(temp_imputed_annotations_list)

@@ -6,6 +6,7 @@
 #to the input panda
 #later down the pipeline, if there is no inchikey, then the compound will be connected to root in the networkx?
 import pandas as pd
+import numpy as np
 
 def input_addtional_properties(pipeline_input_panda, additional_property_panda):
 
@@ -28,6 +29,10 @@ def input_addtional_properties(pipeline_input_panda, additional_property_panda):
 
     pipeline_input_panda.reset_index(inplace=True,drop=True)
     additional_property_panda.reset_index(inplace=True,drop=True)
+
+    pipeline_input_panda['group'].replace('nan',np.nan,inplace=True)
+    pipeline_input_panda['inchikey'].replace('nan',np.nan,inplace=True)
+
     return
 
 if __name__ == "__main__":
